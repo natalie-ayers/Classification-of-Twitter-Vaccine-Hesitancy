@@ -27,9 +27,16 @@ python download_unhydrated.py $daily_dt
 echo "Stored unhydrated tweets in $source_file"
 
 
-# 2. Hydrate tweets using get_metadata.py from https://github.com/thepanacealab/SMMT
+# 2a. Create api_keys.json if necessary
 
-echo "2. Hydrate tweets for $daily_dt"
+echo "2b. Create api_keys.json if necessary"
+
+python create_api_key_json.py
+
+
+# 2b. Hydrate tweets using get_metadata.py from https://github.com/thepanacealab/SMMT
+
+echo "2b. Hydrate tweets for $daily_dt"
 
 python get_metadata.py -i $source_file -o $dest_file -k api_keys.json
 #python get_metadata.py -i data/2021-04-14_clean-dataset-filtered.tsv -o data/2021-04-14_hydrated_tweets -k api_keys.json

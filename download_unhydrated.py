@@ -95,42 +95,4 @@ print('')
 
 
 
-# Check whether api_keys.json exists; create if it doesn't
-
-print('Checking for Twitter api_keys.json..')
-print('')
-
-if not os.path.isfile('api_keys.json'):
-  # Authenticate
-  CONSUMER_KEY = "xif7NyG2u2Ec11mQOUjHkmpHM" #@param {type:"string"}
-  CONSUMER_SECRET_KEY = "UaL58wley3zPR85vBNPV9JpYFC4lpJyaxgXWQWnBCC5kNiAod6" #@param {type:"string"}
-  ACCESS_TOKEN_KEY = "1382523372123344897-QbDkiNEWQaqMGGdx6aYwiEPp1T5cC8" #@param {type:"string"}
-  ACCESS_TOKEN_SECRET_KEY = "12PwD71MqXcHihKLvGa2M6e5xvb9CD0orE7nQQJ8kSL23" #@param {type:"string"}
-
-  #Creates a JSON Files with the API credentials
-  with open('api_keys.json', 'w') as outfile:
-      json.dump({
-      "consumer_key":CONSUMER_KEY,
-      "consumer_secret":CONSUMER_SECRET_KEY,
-      "access_token":ACCESS_TOKEN_KEY,
-      "access_token_secret": ACCESS_TOKEN_SECRET_KEY
-      }, outfile)
-  
-  print('Created api_keys.json to store Twitter api credentials')
-
-else:
-  print('api_keys.json already exists')
-
-#The lines below are just to test if the twitter credentials are correct
-# Authenticate
-#auth = tweepy.AppAuthHandler(CONSUMER_KEY, CONSUMER_SECRET_KEY)
-
-#api = tweepy.API(auth, wait_on_rate_limit=True,
-#				   wait_on_rate_limit_notify=True)
-
-#if (not api):
-#    print ("Can't Authenticate")
-#    sys.exit(-1)
-
-
 
