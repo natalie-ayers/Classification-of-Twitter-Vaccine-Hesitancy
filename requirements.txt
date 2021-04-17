@@ -1,0 +1,9 @@
+numpy
+pandas==1.2.3
+gzip
+linecache
+shutil
+ipywidgets
+twarc==2.0.5
+tweepy==3.10.0
+wget==3.2
