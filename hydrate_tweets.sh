@@ -38,7 +38,7 @@ python create_api_key_json.py
 
 echo "2b. Hydrate tweets for $daily_dt"
 
-python get_metadata.py -i $source_file -o $dest_file -k api_keys.json
+python get_metadata.py -i $source_file -o $dest_file -k api_keys.json -m e
 #python get_metadata.py -i data/2021-04-14_clean-dataset-filtered.tsv -o data/2021-04-14_hydrated_tweets -k api_keys.json
 
 echo "Stored hydrated tweets in $dest_file"
