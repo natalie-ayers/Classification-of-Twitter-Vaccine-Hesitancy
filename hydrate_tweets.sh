@@ -22,7 +22,7 @@ fi
 
 echo "1. Downloading unhydrated tweets for specified day: $daily_dt"
 
-python download_unhydrated.py $daily_dt
+python3 download_unhydrated.py $daily_dt
 
 echo "Stored unhydrated tweets in $source_file"
 
@@ -31,14 +31,14 @@ echo "Stored unhydrated tweets in $source_file"
 
 echo "2b. Create api_keys.json if necessary"
 
-python create_api_key_json.py
+python3 create_api_key_json.py
 
 
 # 2b. Hydrate tweets using get_metadata.py from https://github.com/thepanacealab/SMMT
 
 echo "2b. Hydrate tweets for $daily_dt"
 
-python get_metadata.py -i $source_file -o $dest_file -k api_keys.json -m e
+python3 get_metadata.py -i $source_file -o $dest_file -k api_keys.json -m e
 #python get_metadata.py -i data/2021-04-14_clean-dataset-filtered.tsv -o data/2021-04-14_hydrated_tweets -k api_keys.json
 
 echo "Stored hydrated tweets in $dest_file"
