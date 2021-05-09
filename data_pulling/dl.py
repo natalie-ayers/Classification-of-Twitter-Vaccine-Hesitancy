@@ -14,6 +14,7 @@ from apiclient import http
 import logging
 
 from apiclient import discovery
+import unzip as UNZIP
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -51,7 +52,7 @@ def downloadfiles(service, dowid, name,dfilespath):
         fh.seek(0)
         f.write(fh.read())
 
-def main():
+def load_zipfiles():
     """Shows basic usage of the Drive v3 API.
     Prints the names and ids of the first 10 files the user has access to.
     """
@@ -77,7 +78,9 @@ def main():
     service = build('drive', 'v3', credentials=creds)
     # Call the Drive v3 API
 
-    Folder_id = "'1A8WwyNY1RNKL6X7_Z3DJrqSYj_jm2qfs'" # Enter The Downloadable folder ID From Shared Link
+    with open('folder_ID.txt') as f:
+        Folder_id = f.read()
+    # Specify folder location
 
     results = service.files().list(
         pageSize=1000, q=Folder_id+" in parents", fields="nextPageToken, files(id, name, mimeType)").execute()
@@ -87,38 +90,11 @@ def main():
     else:
         print('Files:')
         for item in items:
-            if item['mimeType'] == 'application/vnd.google-apps.folder':
-                if not os.path.isdir("Data"):
-                   os.mkdir("Data")
-                bfolderpath = os.getcwd()+"/Data/"
- 
-                names = str(item['name']).split('.')
-                if len(names)!=2:
-                    continue
-                name = names[0]
-                identifier = names[1]
-               
-                if identifier != 'zip':
-                   continue
-                
-                if os.path.isfile(os.getcwd()+"/Data/" + name + '.csv'):
-                    print(name + ' is already downloaded and unzipped!')
-                    continue
-
-                if os.path.isfile(os.getcwd()+"/Data/" + name + '.zip'):
-                    print(name + ' is already downloaded but still zipped!')
-                    continue
-
-                print(name)
-        
-                folderpath = bfolderpath
-                listfolders(service, item['id'], folderpath)
-            else:
+            if item['mimeType'] != 'application/vnd.google-apps.folder':
                 if not os.path.isdir("Data"):
                    os.mkdir("Data")
                 bfolderpath = os.getcwd()+"/Data"
 
-
                 names = str(item['name']).split('.')
                 if len(names)!=2:
                     continue
@@ -128,19 +104,18 @@ def main():
                 if identifier != 'zip':
                    continue
                 
-                if os.path.isfile(os.getcwd()+"/Data/" + name + '.csv'):
+                if os.path.isfile(os.getcwd()+"/Data/" + name.replace('clean-dataset','hydrated_tweets_short.json')):
                     print(name + ' is already downloaded and unzipped!')
                     continue
 
-                if os.path.isfile(os.getcwd()+"/Data/" + name + '.zip'):
+                if os.path.isfile(os.getcwd()+"/Data/" + name+ '.zip'):
                     print(name + ' is already downloaded but still zipped!')
                     continue
 
                 print(name)
-    
 
                 filepath = bfolderpath #+ item['name']
                 downloadfiles(service, item['id'], item['name'], filepath)
+                UNZIP.unzip_files()
 
-if __name__ == '__main__':
-    main()
+
