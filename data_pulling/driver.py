@@ -10,5 +10,5 @@ import matplotlib.pyplot as plt
 import dl as DL
 
 if __name__ == "__main__":
-    DL.load_zipfiles()
+    DL.load_files()
     
