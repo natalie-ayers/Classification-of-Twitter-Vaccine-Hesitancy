@@ -14,25 +14,22 @@ def label(path, name, indicator):
     if 'score' in df.columns:
         print(name, ' is already processed.')
         return
+  
     print(name, ', start processing')
     analyzer = SentimentIntensityAnalyzer()
    
-    # df['positive'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
-    # df['neutral'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
-    # df['negative'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
-    # df['compound'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
 
-    df['positive'] = df['text'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
-    df['neutral'] = df['text'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
-    df['negative'] = df['text'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
-    df['compound'] = df['text'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
+    df['positive'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
+    df['neutral'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
+    df['negative'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
+    df['compound'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
 
-    df['score'] = np.where(df['compound']>=0, 1, 0)
+    df['score'] = np.where(df['compound']>=0.05, 1, (np.where(df['compound']> -0.05,0,-1)))
 
     print('---labeled!')
-    print(df.head())
 
-    df.to_csv(path +  name + '_labeled.json')
+    df[['created_at','text_cln','text_cln_tok', 'positive', 'neutral', 'negative', 'compound',
+       'score']].to_json(path +  name + '_labeled.json')
     return 
 
 

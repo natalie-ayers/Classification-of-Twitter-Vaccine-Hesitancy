@@ -5,3 +5,11 @@
   If it does not work in the second run: remove token.pickle and run driver.py again.
 4. Run 'python driver.py'. 
 
+# Interpreting VADER score  
+positive: compound score>=0.05  
+neutral: compound score between -0.05 and 0.05  
+negative: compound score<=-0.05  
+https://predictivehacks.com/how-to-run-sentiment-analysis-in-python-using-vader/  
+
+
+
