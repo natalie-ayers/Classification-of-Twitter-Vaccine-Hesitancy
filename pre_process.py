@@ -38,9 +38,10 @@ def pre_process_tweets(tweets):
 
     tweets['text_cln'] = tweets.apply(process_row, axis=1)
     tweets = tweets[tweets.text_cln != '']
-    tweets['text_cln'] = tweets['text_cln'].str.replace('[^\w\s]',' ').str.replace('\s\s+', ' ')
+    tweets['text_cln'] = tweets['text_cln'].str.replace('[^\w\s]',' ').str.replace('\s\s+', ' ').str.replace('\d+', '')
     tweets['text_cln_tok'] = tweets['text_cln'].str.split(" ", expand = False)
-    tweets['text_cln_tok'] = tweets.text_cln_tok.apply(lambda x: [i for i in x if i != ''])
+    tweets['text_cln_tok'] = tweets.text_cln_tok.apply(lambda x: [i for i in x if (i != '' and len(i) > 2 and i.find('corona') < 0 and i.find('covid') < 0 and i.find('vacc') < 0)])
+    tweets = tweets[tweets['text_cln_tok'].notna()]
     tweets = tweets.reset_index(drop=True)
 
     return tweets
