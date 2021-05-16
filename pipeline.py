@@ -25,7 +25,7 @@ def fit_lda_model(corpus, dict, model, params):
                         chunksize=params['chunksize'],
                         passes=10,
                         alpha='auto',
-                        per_word_topics=False)
+                        per_word_topics=True)
 
     elif model == 'LdaMallet':
         lda_model = LdaMallet(mallet_path=MALLET_PATH,
@@ -47,7 +47,6 @@ def build_corpus_dict(doc_lst, filter_extremes=True, \
     id2word_dict = corpora.Dictionary(doc_lst)
     if filter_extremes:
         id2word_dict.filter_extremes(no_below=b, no_above=a, keep_n=k)
-    #print('id2word_dict',id2word_dict.token2id)
 
     lda_corpus = [id2word_dict.doc2bow(doc) for doc in doc_lst]
 
@@ -83,7 +82,8 @@ def choose_lda_models(doc_field, verbose=True):
 
     # Config: Dictionaries of models and hyperparameters
     MODELS = {
-        'GensimLDA': 'LdaModel', 
+        'GensimLDA': 'LdaModel'
+        , 
         'MalletLDA': 'LdaMallet'
     }
 
@@ -91,9 +91,10 @@ def choose_lda_models(doc_field, verbose=True):
         'GensimLDA': [{'chunksize': x, 'num_topics': y, \
                         'alpha': a, 'eta': b,'random_state': 100} 
                             for x in (500, 1000, 2000) \
-                            for y in (3, 5, 10, 15, 20) \
+                            for y in (3, 5, 10, 15) \
                             for a in (0.1, 0.3, 0.6, 'symmetric', 'asymmetric') \
-                            for b in (0.1, 0.3, 0.6, 0.9, 'symmetric')],
+                            for b in (0.1, 0.3, 0.6, 0.8, 1, 'symmetric')]
+                            ,
         'MalletLDA': [{'num_topics': y, 'alpha': a, \
                         'random_seed': 100} 
                             for y in (3, 5, 10, 15, 20) \
