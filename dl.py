@@ -112,8 +112,8 @@ def load_files():
                 #     print(name + ' is already downloaded but still zipped!')
                 #     continue
 
-                if os.path.isfile(os.getcwd()+"/Data/" + name+ '.csv'):
-                    print(name + ' is already downloaded!')
+                if os.path.isfile(os.getcwd()+"/Data/" + 'labeled/' + name+ '_labeled.json'):
+                    print(name + ' is already processed!')
                     continue
 
                 print(name)

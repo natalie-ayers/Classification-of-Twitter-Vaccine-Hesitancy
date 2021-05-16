@@ -11,6 +11,6 @@ import dl as DL
 import labeling as LABEL
 
 if __name__ == "__main__":
-    #DL.load_files()
+    DL.load_files()
     LABEL.main()
     

@@ -3,7 +3,7 @@ import nltk
 import numpy as np
 import csv
 from glob import glob
-import os
+import os.path
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 # nltk.download('vader_lexicon') # need this if not yet downloaded
 
@@ -28,15 +28,26 @@ def label(path, name, indicator):
 
     print('---labeled!')
 
-    df[['created_at','text_cln','text_cln_tok', 'positive', 'neutral', 'negative', 'compound',
-       'score']].to_json(path +  name + '_labeled.json')
-    return 
+    if not os.path.isdir(os.path.join(path,"labeled")):
+        os.mkdir(os.path.join(path,"labeled"))
 
+    df[['created_at','text_cln','text_cln_tok', 'positive', 'neutral', 'negative', 'compound',
+       'score']].to_json(os.path.join(path,"labeled/") + name + '_labeled.json')
+    return 
+ 
 
 def main():
     path = os.getcwd()+'/Data/'
     for f in os.listdir(path):
+        if len(f.split('.'))!=2:
+            continue
         name, indicator = f.split('.')
-        if indicator == 'csv':
-            label(path, name, indicator)
+        if os.path.isfile(path + '/labeled/' +name+'_labeled.json'):
+            continue
+        elif indicator == 'csv':
+            try:
+                label(path, name, indicator)
+                os.unlink(os.path.join(path, f))
+            except:
+                print(name +' could not be processed. skip')
     
