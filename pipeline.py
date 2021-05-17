@@ -24,13 +24,16 @@ def fit_lda_model(corpus, dict, model, params):
                         update_every=1,
                         chunksize=params['chunksize'],
                         passes=10,
-                        alpha='auto',
+                        alpha=params['alpha'],
+                        eta=params['eta'],
                         per_word_topics=True)
 
     elif model == 'LdaMallet':
         lda_model = LdaMallet(mallet_path=MALLET_PATH,
                         corpus=corpus,
                         id2word=dict,
+                        num_topics=params['num_topics'],
+                        alpha=params['alpha'],
                         random_seed=params['random_seed']
                         )
 
@@ -110,8 +113,14 @@ def choose_lda_models(doc_field, verbose=True):
     doc_lst = []
     for doc in doc_field:
         doc_lst.append(ast.literal_eval(doc))
-    print('Created doc_lst', doc_lst[0:8])
+    #print('Created doc_lst', doc_lst[0:8])
     
+    # Create dictionary and corpus 
+    id2word_dict, lda_corpus = build_corpus_dict(doc_lst)
+    #print('dict:',id2word_dict.token2id)
+    #print()
+    #print('corpus first 5:',lda_corpus[0:5])
+
     # Loop over models 
     for model_key in MODELS.keys(): 
         
@@ -122,15 +131,12 @@ def choose_lda_models(doc_field, verbose=True):
             # Begin timer 
             start = datetime.datetime.now()
 
-            # Create dictionary and corpus 
-            id2word_dict, lda_corpus = build_corpus_dict(doc_lst)
-            
             # Create model 
             model = MODELS[model_key]
             
             # Fit model on training set 
             fitted = fit_lda_model(lda_corpus, id2word_dict, model, params)
-
+            
             # Show topics 
             topics = fitted.print_topics()
             
@@ -142,7 +148,7 @@ def choose_lda_models(doc_field, verbose=True):
             stop = datetime.datetime.now()
             time_elapsed = stop - start
             print("Time Elapsed:", time_elapsed) 
-
+            #print('Coherence',coherence)
             # Store results in your results data frame 
             results = results.append({'LDA Model': model_key, 
                 'Params': params, 'Time Elapsed': time_elapsed, 
