@@ -45,3 +45,12 @@ def pre_process_tweets(tweets):
     tweets = tweets.reset_index(drop=True)
 
     return tweets
+
+def write_clean_file(filename):
+
+    df = read_file(filename)
+    process_df = pre_process_tweets(df)
+    out_file = filename[:11] + 'cln.csv'
+
+    process_df.to_csv(out_file, index=False)
+    
