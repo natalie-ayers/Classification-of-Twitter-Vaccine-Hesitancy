@@ -5,29 +5,46 @@ import csv
 from glob import glob
 import os.path
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import re
 # nltk.download('vader_lexicon') # need this if not yet downloaded
 
 
 def label(path, name, indicator):
     
-    df = pd.read_csv(path + name + '.' + indicator)
+    try:
+        df = pd.read_csv(path + name + '.' + indicator)
+    except:
+        # when the file cannot be read, force using line terminator n, not r:
+        df = pd.read_csv(path + name + '.' + indicator, lineterminator='\n')
+        df['text_cln_tok'] = df['text_cln_tok'].apply(lambda x: re.sub("\r",'', x))
+
     if 'score' in df.columns:
         print(name, ' is already processed.')
         return
   
     print(name, ', start processing')
     analyzer = SentimentIntensityAnalyzer()
-   
 
-    df['positive'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
-    df['neutral'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
-    df['negative'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
-    df['compound'] = df['text_cln'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
 
+    # Cleaning, remove na, remove unnecessary special characters
+    df = df[df['text_cln_tok'].notna()]
+    df['text_cln_tok'] = df['text_cln_tok'].apply(lambda x: re.sub("',",'', x))
+    df['text_cln_tok'] = df['text_cln_tok'].apply(lambda x: re.sub("'",'', x))
+
+    #print(df['text_cln_tok'].head())
+    
+    # Labeling
+    df['positive'] = df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
+    df['neutral'] =  df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
+    df['negative'] = df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
+    df['compound'] = df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
+    
     df['score'] = np.where(df['compound']>=0.05, 1, (np.where(df['compound']> -0.05,0,-1)))
 
+    print(df['compound'].head())
     print('---labeled!')
 
+    # Save file to json
     if not os.path.isdir(os.path.join(path,"labeled")):
         os.mkdir(os.path.join(path,"labeled"))
 
@@ -48,6 +65,7 @@ def main():
             try:
                 label(path, name, indicator)
                 os.unlink(os.path.join(path, f))
-            except:
+            except Exception as e: 
+                print(e)
                 print(name +' could not be processed. skip')
     

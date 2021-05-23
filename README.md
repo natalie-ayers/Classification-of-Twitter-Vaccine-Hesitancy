@@ -11,5 +11,6 @@ neutral: compound score between -0.05 and 0.05
 negative: compound score<=-0.05  
 https://predictivehacks.com/how-to-run-sentiment-analysis-in-python-using-vader/  
 
-
+# TROUBLE SHOOTING  
+- 'Error tokenizing data. C error: Buffer overflow caught - possible malformed input file.' https://intellipaat.com/community/19314/error-in-reading-a-csv-file-in-pandas-cparsererror-error-tokenizing-data-c-error-buffer-overflow-caught-possible-malformed-input-file  
 
