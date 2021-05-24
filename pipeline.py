@@ -41,7 +41,7 @@ def fit_lda_model(corpus, dict, model, params):
     
 
 def build_corpus_dict(doc_lst, filter_extremes=True, \
-    filter_params=(50, 0.8, 1000000)):
+    filter_params=(400, 0.8, 1000000)):
     """
     """
     
@@ -72,7 +72,7 @@ def lda_eval(fitted_model, doc_lst, lda_corpus, id2word_dict, model):
 
     return coherence_lda, perplexity_lda
     
-def choose_lda_models(doc_field, verbose=True):
+def choose_lda_models(doc_field, n_grams=1,verbose=True):
     """
     Perform manual Grid Search of specified LDA models and parameters and
         store results in dataframe to evaluate
@@ -93,15 +93,16 @@ def choose_lda_models(doc_field, verbose=True):
     GRID = {
         'GensimLDA': [{'chunksize': x, 'num_topics': y, \
                         'alpha': a, 'eta': b,'random_state': 100} 
-                            for x in (500, 1000, 2000) \
-                            for y in (3, 5, 10, 15) \
-                            for a in (0.1, 0.3, 0.6, 'symmetric', 'asymmetric') \
-                            for b in (0.1, 0.3, 0.6, 0.8, 1, 'symmetric')]
+                            for x in (2000) \
+                            for y in (5, 10, 15) \
+                            for a in (0.1, 0.3, 0.6, 'symmetric') \
+                            for b in (0.3, 0.6, 0.8, 1)
+                            ]
                             ,
         'MalletLDA': [{'num_topics': y, 'alpha': a, \
                         'random_seed': 100} 
-                            for y in (3, 5, 10, 15, 20) \
-                            for a in (0.1, 0.3, 0.6, 'symmetric', 'asymmetric') \
+                            for y in (3, 5, 10) \
+                            for a in (0.1, 0.3, 0.6, 'symmetric') \
                                 ]
     }
 
@@ -110,50 +111,58 @@ def choose_lda_models(doc_field, verbose=True):
         'Time Elapsed', 'Coherence', 'Perplexity', 'Topics'])
 
     # Create list of docs
-    doc_lst = []
-    for doc in doc_field:
-        doc_lst.append(ast.literal_eval(doc))
-    #print('Created doc_lst', doc_lst[0:8])
+    if n_grams == 1:
+        doc_lst = []
+        for doc in doc_field:
+            doc_lst.append(ast.literal_eval(doc))
+        #print('Created doc_lst', doc_lst[0:8])
+
+    elif n_grams > 1:
+        doc_lst = []
+        for doc in doc_field:
+            doc_lst.append(doc)
     
     # Create dictionary and corpus 
     id2word_dict, lda_corpus = build_corpus_dict(doc_lst)
     #print('dict:',id2word_dict.token2id)
     #print()
     #print('corpus first 5:',lda_corpus[0:5])
+    try:
+        # Loop over models 
+        for model_key in MODELS.keys(): 
+            
+            # Loop over parameters 
+            for params in GRID[model_key]: 
+                print("Training model:", model_key, "|", params)
+                
+                # Begin timer 
+                start = datetime.datetime.now()
 
-    # Loop over models 
-    for model_key in MODELS.keys(): 
-        
-        # Loop over parameters 
-        for params in GRID[model_key]: 
-            print("Training model:", model_key, "|", params)
-            
-            # Begin timer 
-            start = datetime.datetime.now()
-
-            # Create model 
-            model = MODELS[model_key]
-            
-            # Fit model on training set 
-            fitted = fit_lda_model(lda_corpus, id2word_dict, model, params)
-            
-            # Show topics 
-            topics = fitted.print_topics()
-            
-            # Evaluate predictions 
-            coherence, perplexity = lda_eval(fitted, doc_lst, \
-                lda_corpus, id2word_dict, model)
-            
-            # End timer
-            stop = datetime.datetime.now()
-            time_elapsed = stop - start
-            print("Time Elapsed:", time_elapsed) 
-            #print('Coherence',coherence)
-            # Store results in your results data frame 
-            results = results.append({'LDA Model': model_key, 
-                'Params': params, 'Time Elapsed': time_elapsed, 
-                'Coherence': coherence, 'Perplexity': perplexity,\
-                'Topics': topics}, \
-                     ignore_index=True)
+                # Create model 
+                model = MODELS[model_key]
+                
+                # Fit model on training set 
+                fitted = fit_lda_model(lda_corpus, id2word_dict, model, params)
+                
+                # Show topics 
+                topics = fitted.print_topics()
+                
+                # Evaluate predictions 
+                coherence, perplexity = lda_eval(fitted, doc_lst, \
+                    lda_corpus, id2word_dict, model)
+                
+                # End timer
+                stop = datetime.datetime.now()
+                time_elapsed = stop - start
+                print("Time Elapsed:", time_elapsed) 
+                #print('Coherence',coherence)
+                # Store results in your results data frame 
+                results = results.append({'LDA Model': model_key, 
+                    'Params': params, 'Time Elapsed': time_elapsed, 
+                    'Coherence': coherence, 'Perplexity': perplexity,\
+                    'Topics': topics}, \
+                        ignore_index=True)
+    except:
+        return results
     
     return results
