@@ -21,7 +21,7 @@ from scipy.signal import savgol_filter
 #from splrep import spline
 
 
-def plot(df, data, title,fname):
+def plot(df, data, title,fname, y_lim=(-0.8,1.2)):
     '''
 
     df: dataframe
@@ -37,6 +37,8 @@ def plot(df, data, title,fname):
         plt.plot(x,yhat, "-o",label=label)
 
     plt.legend()
+    y_min, y_max = y_lim
+    plt.ylim(y_min, y_max)
     plt.draw()
     plt.title(title)
     plt.xticks(rotation=45)
@@ -61,9 +63,8 @@ for f in os.listdir(path):
         for col in ['positive','negative','compound','score']:
             data[col] = data[col].apply(lambda x: float(x))
 
-        tweets = tweets.append({'Date': date_obj, 'Count':len(data)},ignore_index=True)
-        #tweets['Date'] = pd.to_datetime(tweets.Date)
-        #tweets['Date']  = tweets['Date'] .apply(lambda x: x.date )
+        tweets = tweets.append({'Date': date_obj, 'Count':len(data),'Positive':len(data[data['score']==1]),
+        'Neutral':len(data[data['score']==0]),'Negative':len(data[data['score']==-1])},ignore_index=True)
         tweets = tweets.sort_values(by='Date') 
 
         polarity = polarity.append({'Date': date_obj, 'Polarity':data['score'],
@@ -75,11 +76,17 @@ for f in os.listdir(path):
 print(tweets.head())
 print(polarity.head())
 
-for col in ['Polarity','positive','negative','compound']:
-    polarity[col]= polarity[col].apply(lambda x:pd.to_numeric(x,errors='coerce'))
+for col in ['Count','Polarity','positive','negative','compound']:
+    try:
+        polarity[col]= polarity[col].apply(lambda x:pd.to_numeric(x,errors='coerce'))
+        tweets[col]=tweets[col].apply(lambda x:pd.to_numeric(x,errors='coerce'))
+    except:
+        pass
 
 # Number of tweet by day
-plot(tweets, [('Date','Count','Number of tweets')],title = 'Number of tweets by day',fname = 'tweets.png')
+plot(tweets, [('Date','Count','Number of tweets'),('Date','Positive','Number of positive tweets'),
+('Date','Neutral','Number of neutral tweets'),('Date','Negative','Number of negative tweets')],
+title = 'Number of tweets by day',fname = 'tweets.png', y_lim = (3000,45000))
 
 
 # Polarity by day
@@ -92,8 +99,12 @@ plot(polarity_day, [('Date','Polarity','Mean Score (1 or 0)'),('Date','positive'
 
 
 # Number of tweet by week
-tweets_week = tweets.resample('W', on = 'Date').agg({"Count":'sum'}).reset_index()
-plot(tweets_week, [('Date','Count','Number of tweets')],title = 'Number of tweets by week',fname = 'tweets.png')
+tweets_week = tweets.resample('W', on = 'Date').agg({"Count":'sum','Positive':'sum','Neutral':'sum','Negative':'sum'}).reset_index()
+plot(tweets_week, [('Date','Count','Number of tweets'),('Date','Positive','Number of positive tweets'),
+    ('Date','Neutral','Number of neutral tweets'),('Date','Negative','Number of negative tweets')],
+      title = 'Number of tweets by week',fname = 'tweets_by_week.png', y_lim = (5000,75000))
+
+
 
 # Polarity by week
 polarity_week = polarity.resample('W', on = 'Date').agg({'Polarity':'mean', 'positive':'mean', 'negative':'mean', 'compound':'mean'}).reset_index()
