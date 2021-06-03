@@ -10,7 +10,16 @@ import re
 
 
 def label(path, name, indicator):
-    
+    '''
+    new_words = {
+    'foo': 2.0,
+    'bar': -3.4,
+}
+
+SIA = SentimentIntensityAnalyzer()
+
+SIA.lexicon.update(new_words)
+    '''
     try:
         df = pd.read_csv(path + name + '.' + indicator)
     except:
@@ -28,16 +37,16 @@ def label(path, name, indicator):
 
     # Cleaning, remove na, remove unnecessary special characters
     df = df[df['text_cln_tok'].notna()]
-    df['text_cln_tok'] = df['text_cln_tok'].apply(lambda x: re.sub("',",'', x))
-    df['text_cln_tok'] = df['text_cln_tok'].apply(lambda x: re.sub("'",'', x))
+    df['tmp'] = df['text_cln_tok'].apply(lambda x: re.sub("',",'', x))
+    df['tmp'] = df['tmp'].apply(lambda x: re.sub("'",'', x))
 
     #print(df['text_cln_tok'].head())
     
     # Labeling
-    df['positive'] = df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
-    df['neutral'] =  df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
-    df['negative'] = df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
-    df['compound'] = df['text_cln_tok'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
+    df['positive'] = df['tmp'].apply(lambda x:analyzer.polarity_scores(x)['pos'])
+    df['neutral'] =  df['tmp'].apply(lambda x:analyzer.polarity_scores(x)['neu'])
+    df['negative'] = df['tmp'].apply(lambda x:analyzer.polarity_scores(x)['neg'])
+    df['compound'] = df['tmp'].apply(lambda x:analyzer.polarity_scores(x)['compound'])
     
     df['score'] = np.where(df['compound']>=0.05, 1, (np.where(df['compound']> -0.05,0,-1)))
 
