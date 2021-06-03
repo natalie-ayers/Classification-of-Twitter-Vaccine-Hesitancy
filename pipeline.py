@@ -1,7 +1,7 @@
 import pandas as pd
 import gensim
 import ast
-import gensim.corpora as corpora
+from gensim import corpora, models
 from gensim.models import CoherenceModel
 from gensim.models.ldamodel import LdaModel
 from gensim.models.wrappers import LdaMallet
@@ -41,7 +41,7 @@ def fit_lda_model(corpus, dict, model, params):
     
 
 def build_corpus_dict(doc_lst, filter_extremes=True, \
-    filter_params=(400, 0.8, 1000000)):
+    filter_params=(200, 0.8, 1000000),tfidf=True):
     """
     """
     
@@ -53,7 +53,14 @@ def build_corpus_dict(doc_lst, filter_extremes=True, \
 
     lda_corpus = [id2word_dict.doc2bow(doc) for doc in doc_lst]
 
-    return id2word_dict, lda_corpus
+    if tfidf:
+        tfidf = models.TfidfModel(lda_corpus)
+        tfidf_corpus = tfidf[lda_corpus]
+        fin_corpus = tfidf_corpus
+    else:
+        fin_corpus = lda_corpus
+
+    return id2word_dict, fin_corpus
 
 def lda_eval(fitted_model, doc_lst, lda_corpus, id2word_dict, model):
     """
@@ -72,7 +79,7 @@ def lda_eval(fitted_model, doc_lst, lda_corpus, id2word_dict, model):
 
     return coherence_lda, perplexity_lda
     
-def choose_lda_models(doc_field, n_grams=1,verbose=True):
+def choose_lda_models(doc_field, n_grams=1,tfidf=True,verbose=True):
     """
     Perform manual Grid Search of specified LDA models and parameters and
         store results in dataframe to evaluate
@@ -93,10 +100,10 @@ def choose_lda_models(doc_field, n_grams=1,verbose=True):
     GRID = {
         'GensimLDA': [{'chunksize': x, 'num_topics': y, \
                         'alpha': a, 'eta': b,'random_state': 100} 
-                            for x in (2000) \
+                            for x in (2000,) \
                             for y in (5, 10, 15) \
-                            for a in (0.1, 0.3, 0.6, 'symmetric') \
-                            for b in (0.3, 0.6, 0.8, 1)
+                            for a in (0.1, 0.3, 0.6, 0.8, 'symmetric') \
+                            for b in (0.3, 0.6, 1)
                             ]
                             ,
         'MalletLDA': [{'num_topics': y, 'alpha': a, \
@@ -115,7 +122,6 @@ def choose_lda_models(doc_field, n_grams=1,verbose=True):
         doc_lst = []
         for doc in doc_field:
             doc_lst.append(ast.literal_eval(doc))
-        #print('Created doc_lst', doc_lst[0:8])
 
     elif n_grams > 1:
         doc_lst = []
@@ -123,10 +129,7 @@ def choose_lda_models(doc_field, n_grams=1,verbose=True):
             doc_lst.append(doc)
     
     # Create dictionary and corpus 
-    id2word_dict, lda_corpus = build_corpus_dict(doc_lst)
-    #print('dict:',id2word_dict.token2id)
-    #print()
-    #print('corpus first 5:',lda_corpus[0:5])
+    id2word_dict, lda_corpus = build_corpus_dict(doc_lst,filter_extremes=False,tfidf=tfidf)
     try:
         # Loop over models 
         for model_key in MODELS.keys(): 
@@ -150,7 +153,8 @@ def choose_lda_models(doc_field, n_grams=1,verbose=True):
                 # Evaluate predictions 
                 coherence, perplexity = lda_eval(fitted, doc_lst, \
                     lda_corpus, id2word_dict, model)
-                
+                print('Coherence:',coherence)
+
                 # End timer
                 stop = datetime.datetime.now()
                 time_elapsed = stop - start
