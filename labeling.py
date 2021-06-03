@@ -11,14 +11,8 @@ import re
 
 def label(path, name, indicator):
     '''
-    new_words = {
-    'foo': 2.0,
-    'bar': -3.4,
-}
-
-SIA = SentimentIntensityAnalyzer()
-
-SIA.lexicon.update(new_words)
+    read the file  (path and name) and assign polarity score
+    save the output in json format
     '''
     try:
         df = pd.read_csv(path + name + '.' + indicator)

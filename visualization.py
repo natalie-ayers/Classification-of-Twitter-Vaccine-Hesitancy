@@ -16,9 +16,6 @@ from datetime import datetime
 from scipy.interpolate import make_interp_spline
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter
-#from scipy.interpolate import spline
-
-#from splrep import spline
 
 
 def plot(df, data, title,fname, y_lim=(-0.8,1.2), hline = None):
