@@ -1,0 +1,13 @@
+numpy
+pandas==1.2.3
+gzip
+linecache
+shutil
+ipywidgets
+twarc==2.0.5
+tweepy==3.10.0
+wget==3.2
+bs4==0.0.1
+gensim==4.0.1
+lxml==4.6.3
+tweet-preprocessor==0.6.0
