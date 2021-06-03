@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 # ml-for-pp_vaccine-hesitancy
 
-Primary Repository Contents:
+# Primary Repository Contents:
 
 lda_topics.ipynb
   Primary notebook for performing LDA modeling and analysis. Configured to perform Gensim or MALLET LDA and create visualizations including wordclouds, PyLDAvis, and seaborn plots.
@@ -14,6 +13,8 @@ download_unhydrated.py
   
 pre_process.py
   Script to clean, tokenize, and filter for vaccine-related tweets
+
+
 =======
 # Downloading zip files from Google Drive using Google API
 1. Place the client_secret json file as 'credentials.json' in 'creds' directory in the same directry as driver.py  
@@ -30,5 +31,3 @@ https://predictivehacks.com/how-to-run-sentiment-analysis-in-python-using-vader/
 
 # TROUBLE SHOOTING  
 - 'Error tokenizing data. C error: Buffer overflow caught - possible malformed input file.' https://intellipaat.com/community/19314/error-in-reading-a-csv-file-in-pandas-cparsererror-error-tokenizing-data-c-error-buffer-overflow-caught-possible-malformed-input-file  
-
->>>>>>> b9d79cb1b8a80eb726ce742664a7d790309d7024
