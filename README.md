@@ -1,6 +1,7 @@
-# ml-for-pp_vaccine-hesitancy
-
 # Primary Repository Contents:
+
+ML Final Paper.pdf
+  Final report prepared to describe vaccine hesitancy on Twitter using the sentiment analysis and topic modeling work contained in this repository.
 
 lda_topics.ipynb
   Primary notebook for performing LDA modeling and analysis. Configured to perform Gensim or MALLET LDA and create visualizations including wordclouds, PyLDAvis, and seaborn plots.
